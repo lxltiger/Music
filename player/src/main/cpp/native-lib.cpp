@@ -2,17 +2,19 @@
 #include <string>
 #include <pthread.h>
 #include <zconf.h>
-#include "android/log.h"
-#include "queue"
-#include "JavaListener.h"
+//#include "queue"
+//#include "JavaListener.h"
+#include "JavaInvoke.h"
+#include "FFmpeg.h"
 
 extern "C"{
     #include <libavformat/avformat.h>
 
 }
 
-#define LOGI(FORMAT,...) __android_log_print(ANDROID_LOG_INFO,"ywl5320",FORMAT,##__VA_ARGS__);
+//#define LOGI(FORMAT,...) __android_log_print(ANDROID_LOG_INFO,"ywl5320",FORMAT,##__VA_ARGS__);
 
+/*
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -97,8 +99,6 @@ Java_kimascend_com_player_Demo_createThread(JNIEnv *env, jobject instance) {
 
 }
 
-//----------------------------------------------------------------------
-JavaVM *javaVM;
 JavaListener *javaListener;
 pthread_t  child;
 
@@ -117,7 +117,11 @@ Java_kimascend_com_player_Demo_callBackFromC(JNIEnv *env, jobject instance) {
 
      pthread_create(&child,NULL,callJaveInThread,javaListener);
 }
+*/
 
+JavaVM *javaVM;
+JavaInvoke *javaInvoke;
+FFmpeg *fFmpeg;
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved){
     JNIEnv *env;
     javaVM=vm;
@@ -126,4 +130,30 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved){
     }
 
     return JNI_VERSION_1_6;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_prepare(JNIEnv *env, jobject instance, jstring source_) {
+    const char *source = env->GetStringUTFChars(source_, 0);
+    if (javaInvoke == NULL) {
+        javaInvoke = new JavaInvoke(javaVM, env, instance);
+    }
+    if (fFmpeg == NULL) {
+        fFmpeg = new FFmpeg(javaInvoke, source);
+    }
+    LOGI("prepare from lib")
+    fFmpeg->prepare();
+
+//    env->ReleaseStringUTFChars(source_, source);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_start(JNIEnv *env, jobject instance) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->start();
+    }
+
 }
