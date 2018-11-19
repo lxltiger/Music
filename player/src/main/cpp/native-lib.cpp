@@ -97,15 +97,25 @@ Java_kimascend_com_player_Demo_createThread(JNIEnv *env, jobject instance) {
 
 }
 
+//----------------------------------------------------------------------
 JavaVM *javaVM;
 JavaListener *javaListener;
+pthread_t  child;
+
+void *callJaveInThread(void *data){
+    JavaListener *listener= (JavaListener*)data;
+    listener->onError(0, 101, "call from child thread ");
+    pthread_exit(&child);
+}
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_kimascend_com_player_Demo_callBackFromC(JNIEnv *env, jobject instance) {
     javaListener = new JavaListener(javaVM, env, env->NewGlobalRef(instance));
-    javaListener->onError(1, 100, "c++ call java meid from main thread!");
+    //在主线程调用
+//    javaListener->onError(1, 100, "c++ call java meid from main thread!");
 
+     pthread_create(&child,NULL,callJaveInThread,javaListener);
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved){
