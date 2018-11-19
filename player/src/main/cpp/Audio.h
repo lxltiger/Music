@@ -5,6 +5,9 @@
 #ifndef MUSIC_AUDIO_H
 #define MUSIC_AUDIO_H
 
+#include "Status.h"
+#include "PacketQueue.h"
+
 extern "C" {
     #include <libavcodec/avcodec.h>
 };
@@ -14,9 +17,10 @@ public:
     int streamIndex=-1;
     AVCodecContext *avCodecContext = NULL;
     AVCodecParameters *parameters=NULL;
-
+    Status *status;
+    PacketQueue *queue;
 public:
-    Audio();
+    Audio(Status *status);
     ~Audio();
 };
 

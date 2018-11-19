@@ -4,7 +4,10 @@
 
 #include "Audio.h"
 
-Audio::Audio() {}
+Audio::Audio(Status *status) {
+    this->status=status;
+    queue = new PacketQueue(status);
+}
 
 Audio::~Audio() {
 

@@ -4,7 +4,8 @@
 
 #include "FFmpeg.h"
 
-FFmpeg::FFmpeg(JavaInvoke *javaInvoke, const char *url) {
+FFmpeg::FFmpeg(Status *status, JavaInvoke *javaInvoke, const char *url) {
+    this->status = status;
     this->javaInvoke = javaInvoke;
     this->url = url;
 }
@@ -39,7 +40,7 @@ void FFmpeg::startDecodeThread() {
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (audio == NULL) {
-                audio = new Audio();
+                audio = new Audio(status);
                 audio->streamIndex = i;
                 audio->parameters = avFormatContext->streams[i]->codecpar;
             }
@@ -75,29 +76,40 @@ void FFmpeg::startDecodeThread() {
 void FFmpeg::start() {
     if (audio == NULL) {
         LOGE("audio is null");
-        return ;
+        return;
     }
 
-    int count=0;
+    int count = 0;
     while (1) {
         AVPacket *pPacket = av_packet_alloc();
         if (av_read_frame(avFormatContext, pPacket) == 0) {
             if (pPacket->stream_index == audio->streamIndex) {
                 count++;
-                LOGI("解码第%d帧",count);
-                av_packet_free(&pPacket);
-                av_free(pPacket);
-            }else{
+//                LOGI("解码第%d帧", count);
+                audio->queue->put(pPacket);
+//                av_packet_free(&pPacket);
+//                av_free(pPacket);
+            } else {
                 av_packet_free(&pPacket);
                 av_free(pPacket);
             }
-        }else{
+        } else {
             LOGI("decode finished");
             av_packet_free(&pPacket);
             av_free(pPacket);
             break;
         }
     }
+    
+    //模拟出队
+    while (audio->queue->size() > 0) {
+        AVPacket *packet = av_packet_alloc();
+        audio->queue->get(packet);
+        av_packet_free(&packet);
+        av_free(packet);
+        packet=NULL;
+    }
+    LOGI("done ")
 }
 
 FFmpeg::~FFmpeg() {

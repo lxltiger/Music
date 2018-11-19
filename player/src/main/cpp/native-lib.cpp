@@ -122,6 +122,7 @@ Java_kimascend_com_player_Demo_callBackFromC(JNIEnv *env, jobject instance) {
 JavaVM *javaVM;
 JavaInvoke *javaInvoke;
 FFmpeg *fFmpeg;
+Status *status;
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved){
     JNIEnv *env;
     javaVM=vm;
@@ -139,10 +140,14 @@ Java_kimascend_com_player_Player_prepare(JNIEnv *env, jobject instance, jstring 
     if (javaInvoke == NULL) {
         javaInvoke = new JavaInvoke(javaVM, env, instance);
     }
-    if (fFmpeg == NULL) {
-        fFmpeg = new FFmpeg(javaInvoke, source);
+
+    if (status == NULL) {
+        status = new Status();
     }
-    LOGI("prepare from lib")
+
+    if (fFmpeg == NULL) {
+        fFmpeg = new FFmpeg(status,javaInvoke, source);
+    }
     fFmpeg->prepare();
 
 //    env->ReleaseStringUTFChars(source_, source);

@@ -22,6 +22,8 @@ add_library( # Sets the name of the library.
         src/main/cpp/JavaInvoke.cpp
         src/main/cpp/FFmpeg.cpp
         src/main/cpp/Audio.cpp
+        src/main/cpp/PacketQueue.cpp
+        src/main/cpp/Status.cpp
         )
 add_library( avcodec-57 SHARED IMPORTED)
 set_target_properties( avcodec-57

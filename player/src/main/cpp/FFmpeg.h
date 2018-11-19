@@ -10,6 +10,7 @@ extern "C"{
 };
 #include "JavaInvoke.h"
 #include "Audio.h"
+#include "Status.h"
 #include <pthread.h>
 
 class FFmpeg {
@@ -19,9 +20,9 @@ public:
     pthread_t  decodeThread;
     AVFormatContext *avFormatContext=NULL;
     const char *url=NULL;
-
+    Status *status;
 public:
-    FFmpeg(JavaInvoke *javaInvoke, const char *url);
+    FFmpeg(Status *status,JavaInvoke *javaInvoke, const char *url);
     ~FFmpeg();
 
     void prepare();
