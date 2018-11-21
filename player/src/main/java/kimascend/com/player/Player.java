@@ -71,4 +71,6 @@ public class Player {
     public native void prepare(String source);
 
     public native void start();
+
+    public native void play(String url);
 }
