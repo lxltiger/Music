@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             //检测是否有写的权限
             int permission = ActivityCompat.checkSelfPermission(activity,
-                    "android.permission.READ_EXTERNAL_STORAGE");
+                    "android.permission.WRITE_EXTERNAL_STORAGE");
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 // 没有写的权限，去申请写的权限，会弹出对话框
                 ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
@@ -49,12 +49,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
             verifyStoragePermissions(this);
-        // Example of a call to a native method
         player = new Player();
         player.setListener(new OnPreparedListener() {
             @Override
             public void onPrepared() {
                 Log.d(TAG, "Prepared: ");
+                player.startAudio();
             }
         });
     }
@@ -65,19 +65,25 @@ public class MainActivity extends AppCompatActivity {
     public void start(View view) {
 //        player.startAudio();
         File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        Log.d(TAG, musicDirectory.getAbsolutePath());
         /*if (musicDirectory.isDirectory()) {
             File[] files = musicDirectory.listFiles();
             for (File file : files) {
-                Log.d(TAG, "start: "+file.getAbsolutePath());
+                Log.d(TAG, "start: "+file.getAbsolutePath());/mnt/sdcard/Music/Akon.mp3
             }
         }*/
-        String url = musicDirectory+"/mydream.pcm";
+        String url = musicDirectory+"/Akon.pcm";
         player.play(url);
 
     }
 
     public void Prepare(View view) {
-        player.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        Log.d(TAG, musicDirectory.getAbsolutePath());
+        String url = musicDirectory+"/Akon.mp3";
+
+//        player.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        player.setSource(url);
         player.prepareAudio();
     }
 }

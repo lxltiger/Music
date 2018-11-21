@@ -78,9 +78,10 @@ void FFmpeg::start() {
         LOGE("audio is null");
         return;
     }
+    audio->play();
 
     int count = 0;
-    while (1) {
+    while (status != NULL && !status->exit) {
         AVPacket *pPacket = av_packet_alloc();
         if (av_read_frame(avFormatContext, pPacket) == 0) {
             if (pPacket->stream_index == audio->streamIndex) {
@@ -97,18 +98,25 @@ void FFmpeg::start() {
             LOGI("decode finished");
             av_packet_free(&pPacket);
             av_free(pPacket);
-            break;
+            while (status != NULL && !status->exit) {
+                if (audio->queue->size() > 0) {
+                    continue;
+                } else {
+                    status->exit = true;
+                    break;
+                }
+            }
         }
     }
-    
+
     //模拟出队
-    while (audio->queue->size() > 0) {
+    /*while (audio->queue->size() > 0) {
         AVPacket *packet = av_packet_alloc();
         audio->queue->get(packet);
         av_packet_free(&packet);
         av_free(packet);
-        packet=NULL;
-    }
+        packet = NULL;
+    }*/
     LOGI("done ")
 }
 
