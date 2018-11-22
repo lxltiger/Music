@@ -28,6 +28,9 @@ public:
     void prepare();
     void startDecodeThread();
     void start();
+    void pause();
+
+    void resume();
 };
 
 

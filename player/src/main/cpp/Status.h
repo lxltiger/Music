@@ -8,7 +8,8 @@
 
 class Status {
 public:
-    bool exit;
+    bool exit=false;
+    bool load=true;
 
 public:
     Status();

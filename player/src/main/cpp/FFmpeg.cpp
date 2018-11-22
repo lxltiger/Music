@@ -40,7 +40,7 @@ void FFmpeg::startDecodeThread() {
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (audio == NULL) {
-                audio = new Audio(status,avFormatContext->streams[i]->codecpar->sample_rate);
+                audio = new Audio(status,avFormatContext->streams[i]->codecpar->sample_rate,javaInvoke);
                 audio->streamIndex = i;
                 audio->parameters = avFormatContext->streams[i]->codecpar;
             }
@@ -106,17 +106,24 @@ void FFmpeg::start() {
         }
     }
 
-    //模拟出队
-    /*while (audio->queue->size() > 0) {
-        AVPacket *packet = av_packet_alloc();
-        audio->queue->get(packet);
-        av_packet_free(&packet);
-        av_free(packet);
-        packet = NULL;
-    }*/
+
     LOGI("done ")
 }
 
 FFmpeg::~FFmpeg() {
 
+}
+
+void FFmpeg::pause() {
+    if (audio != NULL) {
+
+        audio->pause();
+    }
+}
+
+void FFmpeg::resume() {
+    if (audio != NULL) {
+
+        audio->resume();
+    }
 }

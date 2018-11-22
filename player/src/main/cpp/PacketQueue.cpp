@@ -18,7 +18,7 @@ PacketQueue::~PacketQueue() {
 int PacketQueue::put(AVPacket *avPacket) {
     pthread_mutex_lock(&mutex);
     queuePacket.push(avPacket);
-    LOGI("put one packet left %d",queuePacket.size())
+//    LOGI("put one packet left %d",queuePacket.size())
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
     return 0;
@@ -35,7 +35,7 @@ int PacketQueue::get(AVPacket *avPacket) {
             av_packet_free(&packet);
             av_free(packet);
             packet=NULL;
-            LOGI("从队列里面取出一个AVpacket，还剩下 %d 个", queuePacket.size());
+//            LOGI("从队列里面取出一个AVpacket，还剩下 %d 个", queuePacket.size());
             break;
         } else{
             pthread_cond_wait(&cond, &mutex);

@@ -201,19 +201,24 @@ void getPcmData(void **pcm){
 }
 
 
+
 extern "C"
 JNIEXPORT void JNICALL
-Java_kimascend_com_player_Player_play(JNIEnv *env, jobject instance, jstring url_) {
-    const char *url = env->GetStringUTFChars(url_, 0);
+Java_kimascend_com_player_Player_pause(JNIEnv *env, jobject instance) {
 
-   pcmFile = fopen(url, "r");
-    if (pcmFile == NULL) {
-        LOGE("fail to open file:%s", url);
-        return ;
+
+    if (fFmpeg != NULL) {
+        fFmpeg->pause();
     }
-//    out_buffer =(uint8_t *)malloc(FRAME_SIZE);
 
+}
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_resume(JNIEnv *env, jobject instance) {
 
-    env->ReleaseStringUTFChars(url_, url);
+    if (fFmpeg != NULL) {
+        fFmpeg->resume();
+    }
+
 }

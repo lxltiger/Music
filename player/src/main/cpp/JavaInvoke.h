@@ -21,6 +21,7 @@ public:
     jobject  jobj;
 
     jmethodID  methodPreparedId;
+    jmethodID  methodLoadId;
 
 public:
     JavaInvoke( JavaVM *jvm,JNIEnv *env,jobject  jobj);
@@ -28,6 +29,9 @@ public:
 
     //解码准备完成的回调
     void onPrepared(int threadType);
+
+
+    void onLoad(int threadType, bool loading);
 
 };
 

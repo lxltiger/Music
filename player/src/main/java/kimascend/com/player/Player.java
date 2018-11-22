@@ -3,12 +3,16 @@ package kimascend.com.player;
 import android.text.TextUtils;
 import android.util.Log;
 
+import kimascend.com.listener.OnLoadListener;
+import kimascend.com.listener.OnPlayListener;
 import kimascend.com.listener.OnPreparedListener;
 
 public class Player {
     private static final String TAG = "Player";
     private String source;
-    private OnPreparedListener listener;
+    private OnPreparedListener preparedListener;
+    private OnLoadListener loadListener;
+    private OnPlayListener playListener;
 
     static {
         System.loadLibrary("native-lib");
@@ -23,8 +27,16 @@ public class Player {
     }
 
 
-    public void setListener(OnPreparedListener listener) {
-        this.listener = listener;
+    public void setPreparedListener(OnPreparedListener preparedListener) {
+        this.preparedListener = preparedListener;
+    }
+
+    public void setLoadListener(OnLoadListener loadListener) {
+        this.loadListener = loadListener;
+    }
+
+    public void setPlayListener(OnPlayListener playListener) {
+        this.playListener = playListener;
     }
 
     public void setSource(String source) {
@@ -37,10 +49,10 @@ public class Player {
     public void prepareAudio() {
         if (TextUtils.isEmpty(source)) {
             Log.e(TAG, "empty url");
-            return ;
+            return;
         }
 
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 prepare(source);
@@ -51,10 +63,10 @@ public class Player {
     public void startAudio() {
         if (TextUtils.isEmpty(source)) {
             Log.e(TAG, "empty url");
-            return ;
+            return;
         }
 
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 Player.this.start();
@@ -63,14 +75,25 @@ public class Player {
     }
 
     public void onPrepared() {
-        if (listener != null) {
-            listener.onPrepared();
+        if (preparedListener != null) {
+            preparedListener.onPrepared();
         }
     }
 
-    public native void prepare(String source);
+    public void onLoad(boolean isLoading) {
+        if (loadListener != null) {
+            loadListener.onLoad(isLoading);
+        }
+    }
 
-    public native void start();
 
-    public native void play(String url);
+
+    private native void prepare(String source);
+
+    private native void start();
+
+    public native void pause();
+
+    public native void resume();
+
 }

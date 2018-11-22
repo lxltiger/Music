@@ -7,6 +7,7 @@
 
 #include "Status.h"
 #include "PacketQueue.h"
+#include "JavaInvoke.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -23,6 +24,7 @@ public:
     AVCodecParameters *parameters = NULL;
     Status *status;
     PacketQueue *queue;
+    JavaInvoke *javaInvoke;
 
     pthread_t thread_play;
     AVPacket *avPacket;
@@ -47,7 +49,7 @@ public:
 
 
 public:
-    Audio(Status *status,int sample_rate);
+    Audio(Status *status,int sample_rate,JavaInvoke *javaInvoke);
     ~Audio();
 
     void play();
@@ -58,6 +60,9 @@ public:
 
     int getCurrentSampleRate(int rate);
 
+    void pause();
+
+    void resume();
 
 };
 

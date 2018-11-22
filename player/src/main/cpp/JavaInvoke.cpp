@@ -16,6 +16,8 @@ JavaInvoke::JavaInvoke(JavaVM *jvm, JNIEnv *env, jobject jobj) {
     }
     //获取Java方法的method id
     this->methodPreparedId=env->GetMethodID(cls, "onPrepared", "()V");
+    this->methodLoadId=env->GetMethodID(cls, "onLoad", "(Z)V");
+
 }
 
 JavaInvoke::~JavaInvoke() {
@@ -41,6 +43,25 @@ void JavaInvoke::onPrepared(int threadType) {
 
     }
 
+}
+
+void JavaInvoke::onLoad(int threadType, bool loading) {
+    if (mainThread == threadType) {
+
+        env->CallVoidMethod(jobj, methodLoadId,loading);
+
+    } else if (childThread == threadType) {
+
+        JNIEnv *jniEnv;
+        if(jvm->AttachCurrentThread(&jniEnv,0)!=JNI_OK){
+            LOGE("get child thread wrong")
+            return ;
+        }
+
+        jniEnv->CallVoidMethod(jobj, methodLoadId,loading);
+        jvm->DetachCurrentThread();
+
+    }
 }
 
 

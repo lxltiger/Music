@@ -4,9 +4,10 @@
 
 #include "Audio.h"
 
-Audio::Audio(Status *status,int sample_rate) {
+Audio::Audio(Status *status,int sample_rate,JavaInvoke *javaInvoke) {
     this->status = status;
     this->sample_rate=sample_rate;
+    this->javaInvoke=javaInvoke;
     queue = new PacketQueue(status);
     buffer = (uint8_t *) (av_malloc(sample_rate*2*2));
 }
@@ -29,6 +30,21 @@ void Audio::play() {
 
 int Audio::reSampleAudio() {
     while (status != NULL && !status->exit) {
+
+        if (queue->size() == 0) {
+            if (!status->load) {
+                status->load=true;
+                javaInvoke->onLoad(childThread, true);
+            }
+            continue;
+        }else{
+            if (status->load) {
+                status->load=false;
+                javaInvoke->onLoad(childThread, false);
+            }
+        }
+
+
         avPacket = av_packet_alloc();
         if (queue->get(avPacket) != 0) {
             av_packet_free(&avPacket);
@@ -223,4 +239,16 @@ int Audio::getCurrentSampleRate(int sample_rate) {
             rate =  SL_SAMPLINGRATE_44_1;
     }
     return rate;
+}
+
+void Audio::pause() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
+    }
+}
+
+void Audio::resume() {
+    if (pcmPlayerPlay != NULL) {
+        (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
+    }
 }
