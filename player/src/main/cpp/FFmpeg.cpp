@@ -40,7 +40,7 @@ void FFmpeg::startDecodeThread() {
     for (int i = 0; i < avFormatContext->nb_streams; ++i) {
         if (avFormatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             if (audio == NULL) {
-                audio = new Audio(status);
+                audio = new Audio(status,avFormatContext->streams[i]->codecpar->sample_rate);
                 audio->streamIndex = i;
                 audio->parameters = avFormatContext->streams[i]->codecpar;
             }
@@ -86,10 +86,7 @@ void FFmpeg::start() {
         if (av_read_frame(avFormatContext, pPacket) == 0) {
             if (pPacket->stream_index == audio->streamIndex) {
                 count++;
-//                LOGI("解码第%d帧", count);
                 audio->queue->put(pPacket);
-//                av_packet_free(&pPacket);
-//                av_free(pPacket);
             } else {
                 av_packet_free(&pPacket);
                 av_free(pPacket);

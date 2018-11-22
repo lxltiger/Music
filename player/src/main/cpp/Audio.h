@@ -11,9 +11,10 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 };
 
-#define FRAME_SIZE 44100*2*2
 
 class Audio {
 public:
@@ -29,15 +30,33 @@ public:
     int ret=0;
     uint8_t *buffer=NULL;
     int data_size=0;
+    int sample_rate=0;
+
+    SLObjectItf engineObject=NULL;
+    SLEngineItf engineEngine=NULL;
+
+
+    SLObjectItf outputMixObject=NULL;
+    SLEnvironmentalReverbItf  outputEnviromentReverb;
+    SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
+
+    SLObjectItf pcmPlayObject=NULL;
+    SLPlayItf pcmPlayerPlay=NULL;
+
+    SLAndroidSimpleBufferQueueItf pcmBufferQueue=NULL;
+
 
 public:
-    Audio(Status *status);
+    Audio(Status *status,int sample_rate);
     ~Audio();
 
     void play();
 
     int reSampleAudio();
 
+    void initOpenSLES();
+
+    int getCurrentSampleRate(int rate);
 
 
 };

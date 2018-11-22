@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
         File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
         Log.d(TAG, musicDirectory.getAbsolutePath());
         String url = musicDirectory+"/Akon.mp3";
-
 //        player.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
         player.setSource(url);
         player.prepareAudio();
