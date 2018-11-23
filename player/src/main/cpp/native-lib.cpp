@@ -166,46 +166,11 @@ Java_kimascend_com_player_Player_start(JNIEnv *env, jobject instance) {
 
 }
 
-FILE *pcmFile=NULL;
-uint8_t *out_buffer = NULL;
-
-//SLObjectItf engineObject=NULL;
-//SLEngineItf engineEngine=NULL;
-//
-//
-//SLObjectItf outputMixObject=NULL;
-//SLEnvironmentalReverbItf  outputEnviromentReverb;
-//SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
-//
-//SLObjectItf pcmPlayObject=NULL;
-//SLPlayItf pcmPlayerPlay=NULL;
-
-//SLAndroidSimpleBufferQueueItf pcmBufferQueue=NULL;
-
-SLVolumeItf  pcmPlayVolume=NULL;
-
-void *buffer;
-
-void getPcmData(void **pcm){
-    while (!feof(pcmFile)) {
-//        fread(out_buffer, 1, FRAME_SIZE, pcmFile);
-        if (out_buffer == NULL) {
-            LOGI("read end");
-            break;
-        } else{
-            LOGI("reading")
-        }
-        *pcm=out_buffer;
-        break;
-    }
-}
-
 
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_kimascend_com_player_Player_pause(JNIEnv *env, jobject instance) {
-
 
     if (fFmpeg != NULL) {
         fFmpeg->pause();
@@ -219,6 +184,27 @@ Java_kimascend_com_player_Player_resume(JNIEnv *env, jobject instance) {
 
     if (fFmpeg != NULL) {
         fFmpeg->resume();
+    }
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_stop(JNIEnv *env, jobject instance) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->release();
+        delete (fFmpeg);
+        fFmpeg=NULL;
+    }
+
+    if (javaInvoke != NULL) {
+        delete (javaInvoke);
+        javaInvoke = NULL;
+    }
+    if (status != NULL) {
+        delete (status);
+        status=NULL;
     }
 
 }

@@ -28,6 +28,9 @@ public:
     int get(AVPacket *avPacket);
 
     int size();
+
+
+    void clear();
 };
 
 

@@ -7,6 +7,8 @@
 //必须加 否则编译不过
 extern "C"{
 #include <libavformat/avformat.h>
+#include <libavutil/time.h>
+
 };
 #include "JavaInvoke.h"
 #include "Audio.h"
@@ -21,6 +23,9 @@ public:
     AVFormatContext *avFormatContext=NULL;
     const char *url=NULL;
     Status *status;
+
+    pthread_mutex_t mutex_init;
+    bool exit=false;
 public:
     FFmpeg(Status *status,JavaInvoke *javaInvoke, const char *url);
     ~FFmpeg();
@@ -31,6 +36,8 @@ public:
     void pause();
 
     void resume();
+
+    void release();
 };
 
 

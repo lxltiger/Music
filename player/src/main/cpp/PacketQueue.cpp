@@ -12,6 +12,7 @@ PacketQueue::PacketQueue(Status *status) {
 }
 
 PacketQueue::~PacketQueue() {
+    clear();
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
 }
@@ -54,4 +55,18 @@ int PacketQueue::size() {
     size = queuePacket.size();
     pthread_mutex_unlock(&mutex);
     return size;
+}
+
+void PacketQueue::clear() {
+
+    pthread_cond_signal(&cond);
+    pthread_mutex_lock(&mutex);
+    while (!queuePacket.empty()) {
+        AVPacket *pPacket = queuePacket.front();
+        queuePacket.pop();
+        free(&pPacket);
+        av_free(pPacket);
+        pPacket = NULL;
+    }
+    pthread_mutex_unlock(&mutex);
 }

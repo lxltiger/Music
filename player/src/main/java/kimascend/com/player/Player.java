@@ -74,6 +74,16 @@ public class Player {
         }.start();
     }
 
+    public void stopAudio() {
+
+        new Thread() {
+            @Override
+            public void run() {
+                Player.this.stop();
+            }
+        }.start();
+    }
+
 
     //----------C++调用
     public void onPrepared() {
@@ -89,7 +99,7 @@ public class Player {
     }
 
 
-    public void onPlaying(int current,int total){
+    public void onPlaying(int current, int total) {
         Log.d(TAG, "onPlaying() called with: current = [" + current + "], total = [" + total + "]");
         if (playListener != null) {
             playListener.onTimeInfo(current, total);
@@ -103,5 +113,7 @@ public class Player {
     public native void pause();
 
     public native void resume();
+
+    private native void stop();
 
 }
