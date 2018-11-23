@@ -36,4 +36,11 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/two" />
 
+    <TextView
+        android:id="@+id/play_time_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/three"
+        tools:text="demo"/>
 </android.support.constraint.ConstraintLayout>

@@ -22,6 +22,7 @@ public:
 
     jmethodID  methodPreparedId;
     jmethodID  methodLoadId;
+    jmethodID  methodPlayingId;
 
 public:
     JavaInvoke( JavaVM *jvm,JNIEnv *env,jobject  jobj);
@@ -32,6 +33,8 @@ public:
 
 
     void onLoad(int threadType, bool loading);
+
+    void onPlaying(int threadType, int current,int total);
 
 };
 

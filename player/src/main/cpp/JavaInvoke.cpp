@@ -17,7 +17,7 @@ JavaInvoke::JavaInvoke(JavaVM *jvm, JNIEnv *env, jobject jobj) {
     //获取Java方法的method id
     this->methodPreparedId=env->GetMethodID(cls, "onPrepared", "()V");
     this->methodLoadId=env->GetMethodID(cls, "onLoad", "(Z)V");
-
+    this->methodPlayingId = env->GetMethodID(cls, "onPlaying", "(II)V");
 }
 
 JavaInvoke::~JavaInvoke() {
@@ -59,6 +59,25 @@ void JavaInvoke::onLoad(int threadType, bool loading) {
         }
 
         jniEnv->CallVoidMethod(jobj, methodLoadId,loading);
+        jvm->DetachCurrentThread();
+
+    }
+}
+
+void JavaInvoke::onPlaying(int threadType, int current, int total) {
+    if (mainThread == threadType) {
+
+        env->CallVoidMethod(jobj, methodPlayingId,current,total);
+
+    } else if (childThread == threadType) {
+
+        JNIEnv *jniEnv;
+        if(jvm->AttachCurrentThread(&jniEnv,0)!=JNI_OK){
+            LOGE("get child thread wrong")
+            return ;
+        }
+
+        jniEnv->CallVoidMethod(jobj, methodPlayingId,current,total);
         jvm->DetachCurrentThread();
 
     }

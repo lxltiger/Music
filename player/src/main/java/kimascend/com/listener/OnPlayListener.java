@@ -8,5 +8,6 @@ public interface OnPlayListener {
 
     void onPause(boolean pause);
 
+    void onTimeInfo(int current, int total);
 
 }

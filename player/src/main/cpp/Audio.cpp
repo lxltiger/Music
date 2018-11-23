@@ -4,12 +4,12 @@
 
 #include "Audio.h"
 
-Audio::Audio(Status *status,int sample_rate,JavaInvoke *javaInvoke) {
+Audio::Audio(Status *status, int sample_rate, JavaInvoke *javaInvoke) {
     this->status = status;
-    this->sample_rate=sample_rate;
-    this->javaInvoke=javaInvoke;
+    this->sample_rate = sample_rate;
+    this->javaInvoke = javaInvoke;
     queue = new PacketQueue(status);
-    buffer = (uint8_t *) (av_malloc(sample_rate*2*2));
+    buffer = (uint8_t *) (av_malloc(sample_rate * 2 * 2));
 }
 
 Audio::~Audio() {
@@ -33,13 +33,13 @@ int Audio::reSampleAudio() {
 
         if (queue->size() == 0) {
             if (!status->load) {
-                status->load=true;
+                status->load = true;
                 javaInvoke->onLoad(childThread, true);
             }
             continue;
-        }else{
+        } else {
             if (status->load) {
-                status->load=false;
+                status->load = false;
                 javaInvoke->onLoad(childThread, false);
             }
         }
@@ -100,7 +100,12 @@ int Audio::reSampleAudio() {
             int out_channel = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channel * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 //            fwrite(buffer, 1, data_size, outFile);
-            LOGE("data_size is %d", data_size);
+            current_frame_time = avFrame->pts * av_q2d(time_base);
+            if (current_frame_time < clock) {
+                current_frame_time = clock;
+            }
+            clock = current_frame_time;
+
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -126,19 +131,21 @@ int Audio::reSampleAudio() {
 }
 
 
-void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context){
+void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     Audio *audio = (Audio *) context;
     if (audio != NULL) {
         int size = audio->reSampleAudio();
         if (size > 0) {
-            (* audio->pcmBufferQueue)->Enqueue(audio->pcmBufferQueue,/* (char *)*/audio->buffer, size);
+            audio->clock += size / ((double) (audio->sample_rate) * 2 * 2);
+            if (audio->clock - audio->last_time > 0.5) {
+                audio->last_time = audio->clock;
+                audio->javaInvoke->onPlaying(childThread, (int) (audio->clock), audio->duration);
+            }
+            (*audio->pcmBufferQueue)->Enqueue(audio->pcmBufferQueue,/* (char *)*/
+                                              audio->buffer, size);
         }
     }
-    /*getPcmData(&buffer);
-    if (NULL != buffer) {
-        SLresult  result;
-        result = (*pcmBufferQueue)->Enqueue(pcmBufferQueue, buffer, FRAME_SIZE);
-    }*/
+
 
 }
 
@@ -153,22 +160,24 @@ void Audio::initOpenSLES() {
     const SLInterfaceID mixs[1] = {SL_IID_ENVIRONMENTALREVERB};
     const SLboolean mreq[1] = {SL_BOOLEAN_FALSE};
     result = (*engineEngine)->CreateOutputMix(engineEngine, &outputMixObject, 1, mixs, mreq);
-    result=(*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
-    result=(*outputMixObject)->GetInterface(outputMixObject,SL_IID_ENVIRONMENTALREVERB,&outputEnviromentReverb);
+    result = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
+    result = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_ENVIRONMENTALREVERB,
+                                              &outputEnviromentReverb);
     if (SL_RESULT_SUCCESS == result) {
         result = (*outputEnviromentReverb)->SetEnvironmentalReverbProperties(outputEnviromentReverb,
                                                                              &reverbSettings);
     }
 
-    SLDataLocator_OutputMix outputMix={SL_DATALOCATOR_OUTPUTMIX,outputMixObject};
-    SLDataLocator_AndroidSimpleBufferQueue android_queue={SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,2};
-    SLDataFormat_PCM pcm={
+    SLDataLocator_OutputMix outputMix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
+    SLDataLocator_AndroidSimpleBufferQueue android_queue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
+                                                            2};
+    SLDataFormat_PCM pcm = {
             SL_DATAFORMAT_PCM,
             2,
-            (SLuint32)getCurrentSampleRate(sample_rate),
+            (SLuint32) getCurrentSampleRate(sample_rate),
             SL_PCMSAMPLEFORMAT_FIXED_16,
             SL_PCMSAMPLEFORMAT_FIXED_16,
-            SL_SPEAKER_FRONT_LEFT|SL_SPEAKER_FRONT_RIGHT,
+            SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,
             SL_BYTEORDER_LITTLEENDIAN
     };
     SLDataSource slDataSource = {&android_queue, &pcm};
@@ -194,8 +203,7 @@ void Audio::initOpenSLES() {
 
 int Audio::getCurrentSampleRate(int sample_rate) {
     int rate = 0;
-    switch (sample_rate)
-    {
+    switch (sample_rate) {
         case 8000:
             rate = SL_SAMPLINGRATE_8;
             break;
@@ -236,7 +244,7 @@ int Audio::getCurrentSampleRate(int sample_rate) {
             rate = SL_SAMPLINGRATE_192;
             break;
         default:
-            rate =  SL_SAMPLINGRATE_44_1;
+            rate = SL_SAMPLINGRATE_44_1;
     }
     return rate;
 }

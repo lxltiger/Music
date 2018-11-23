@@ -34,6 +34,12 @@ public:
     int data_size=0;
     int sample_rate=0;
 
+    int duration=0;
+    AVRational time_base;
+    double clock;
+    double current_frame_time;
+    double last_time;
+
     SLObjectItf engineObject=NULL;
     SLEngineItf engineEngine=NULL;
 

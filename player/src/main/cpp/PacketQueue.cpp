@@ -4,15 +4,16 @@
 
 #include "PacketQueue.h"
 
-PacketQueue::PacketQueue(Status *status)  {
-    this->status=status;
+PacketQueue::PacketQueue(Status *status) {
+    this->status = status;
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond, NULL);
 
 }
 
 PacketQueue::~PacketQueue() {
-
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&cond);
 }
 
 int PacketQueue::put(AVPacket *avPacket) {
@@ -34,10 +35,10 @@ int PacketQueue::get(AVPacket *avPacket) {
             }
             av_packet_free(&packet);
             av_free(packet);
-            packet=NULL;
+            packet = NULL;
 //            LOGI("从队列里面取出一个AVpacket，还剩下 %d 个", queuePacket.size());
             break;
-        } else{
+        } else {
             pthread_cond_wait(&cond, &mutex);
         }
 
@@ -48,9 +49,9 @@ int PacketQueue::get(AVPacket *avPacket) {
 }
 
 int PacketQueue::size() {
-    int size=0;
+    int size = 0;
     pthread_mutex_lock(&mutex);
-    size=queuePacket.size();
+    size = queuePacket.size();
     pthread_mutex_unlock(&mutex);
     return size;
 }

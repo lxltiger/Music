@@ -74,6 +74,8 @@ public class Player {
         }.start();
     }
 
+
+    //----------C++调用
     public void onPrepared() {
         if (preparedListener != null) {
             preparedListener.onPrepared();
@@ -87,6 +89,12 @@ public class Player {
     }
 
 
+    public void onPlaying(int current,int total){
+        Log.d(TAG, "onPlaying() called with: current = [" + current + "], total = [" + total + "]");
+        if (playListener != null) {
+            playListener.onTimeInfo(current, total);
+        }
+    }
 
     private native void prepare(String source);
 
