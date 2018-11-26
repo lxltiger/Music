@@ -64,7 +64,7 @@ void PacketQueue::clear() {
     while (!queuePacket.empty()) {
         AVPacket *pPacket = queuePacket.front();
         queuePacket.pop();
-        free(&pPacket);
+        av_packet_free(&pPacket);
         av_free(pPacket);
         pPacket = NULL;
     }

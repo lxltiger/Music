@@ -128,6 +128,7 @@ JavaVM *javaVM;
 JavaInvoke *javaInvoke;
 FFmpeg *fFmpeg;
 Status *status;
+pthread_t  threadStart;
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved){
     JNIEnv *env;
     javaVM=vm;
@@ -159,12 +160,19 @@ Java_kimascend_com_player_Player_prepare(JNIEnv *env, jobject instance, jstring 
 //    env->ReleaseStringUTFChars(source_, source);
 }
 
+void * startCallBack(void *data){
+    FFmpeg *fmpeg = (FFmpeg *) data;
+    fmpeg->start();
+    pthread_exit(&threadStart);
+
+}
 extern "C"
 JNIEXPORT void JNICALL
 Java_kimascend_com_player_Player_start(JNIEnv *env, jobject instance) {
 
     if (fFmpeg != NULL) {
-        fFmpeg->start();
+        pthread_create(&threadStart, NULL, startCallBack, fFmpeg);
+//        fFmpeg->start();
     }
 }
 
@@ -208,4 +216,15 @@ Java_kimascend_com_player_Player_stop(JNIEnv *env, jobject instance) {
         status=NULL;
     }
     exiting=false;
+}
+
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_seek(JNIEnv *env, jobject instance, jint seconds) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->seek(seconds);
+    }
+
 }

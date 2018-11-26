@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import kimascend.com.listener.OnCompleteListener;
 import kimascend.com.listener.OnErrorListener;
 import kimascend.com.listener.OnLoadListener;
 import kimascend.com.listener.OnPlayListener;
@@ -114,6 +115,13 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onError() called with: code = [" + code + "], msg = [" + msg + "]");
             }
         });
+
+        player.setOnCompleteListener(new OnCompleteListener() {
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete() called");
+            }
+        });
     }
 
 
@@ -139,5 +147,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void stop(View view) {
         player.stopAudio();
+    }
+
+    public void seek(View view) {
+        player.seek(210);
     }
 }

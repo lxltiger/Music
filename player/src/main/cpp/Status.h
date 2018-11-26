@@ -10,6 +10,7 @@ class Status {
 public:
     bool exit=false;
     bool load=true;
+    bool seek=false;
 
 public:
     Status();

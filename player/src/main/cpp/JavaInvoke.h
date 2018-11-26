@@ -24,6 +24,7 @@ public:
     jmethodID  methodLoadId;
     jmethodID  methodPlayingId;
     jmethodID  methodOnErrorId;
+    jmethodID  methodOnCompleteId;
 
 public:
     JavaInvoke( JavaVM *jvm,JNIEnv *env,jobject  jobj);
@@ -31,6 +32,7 @@ public:
 
     //解码准备完成的回调
     void onPrepared(int threadType);
+    void onComplete(int threadType);
 
 
     void onLoad(int threadType, bool loading);

@@ -26,6 +26,9 @@ public:
 
     pthread_mutex_t mutex_init;
     bool exit=false;
+
+    int duration=0;
+    pthread_mutex_t mutex_seek;
 public:
     FFmpeg(Status *status,JavaInvoke *javaInvoke, const char *url);
     ~FFmpeg();
@@ -38,6 +41,8 @@ public:
     void resume();
 
     void release();
+
+    void seek(int64_t second);
 };
 
 
