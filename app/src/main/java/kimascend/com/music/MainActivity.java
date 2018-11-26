@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import kimascend.com.listener.OnErrorListener;
 import kimascend.com.listener.OnLoadListener;
 import kimascend.com.listener.OnPlayListener;
 import kimascend.com.listener.OnPreparedListener;
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         player.setPreparedListener(new OnPreparedListener() {
             @Override
             public void onPrepared() {
-                Log.d(TAG, "Prepared: ");
+                Log.d(TAG, "准备中.. ");
                 player.startAudio();
             }
         });
@@ -104,6 +105,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTimeInfo(int current, int total) {
                 Message.obtain(handler,0,current,total).sendToTarget();
+            }
+        });
+
+        player.setOnErrorListener(new OnErrorListener() {
+            @Override
+            public void onError(int code, String msg) {
+                Log.d(TAG, "onError() called with: code = [" + code + "], msg = [" + msg + "]");
             }
         });
     }

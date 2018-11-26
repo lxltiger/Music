@@ -46,12 +46,14 @@ void FFmpeg::startDecodeThread() {
     if (avformat_open_input(&avFormatContext, url, NULL, NULL) != 0) {
         LOGE("fail to avformat_open_input:%s", url);
         exit = true;
+        javaInvoke->onError(childThread, 1000, "fail to avformat_open_input");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
     if (avformat_find_stream_info(avFormatContext, NULL) < 0) {
         LOGE("fail to find stream info %s", url);
         exit = true;
+        javaInvoke->onError(childThread, 1001, "fail to find stream info");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -73,6 +75,7 @@ void FFmpeg::startDecodeThread() {
     if (!pCodec) {
         LOGE("can't find decoder");
         exit = true;
+        javaInvoke->onError(childThread, 1002, "can't find decoder");
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -80,6 +83,8 @@ void FFmpeg::startDecodeThread() {
     if (!audio->avCodecContext) {
         LOGE("can not alloc new decodecctx");
         exit = true;
+        javaInvoke->onError(childThread, 1003, "can not alloc new decodecctx");
+
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -87,6 +92,8 @@ void FFmpeg::startDecodeThread() {
     if (avcodec_parameters_to_context(audio->avCodecContext, audio->parameters) < 0) {
         LOGE("can not fill decodecctx");
         exit = true;
+        javaInvoke->onError(childThread, 1004, "can not fill decodecctx");
+
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -94,6 +101,8 @@ void FFmpeg::startDecodeThread() {
     if (avcodec_open2(audio->avCodecContext, pCodec, 0) != 0) {
         LOGE("cant not open audio strames");
         exit = true;
+        javaInvoke->onError(childThread, 1005, "cant not open audio strames");
+
         pthread_mutex_unlock(&mutex_init);
         return;
     }
@@ -151,7 +160,6 @@ FFmpeg::~FFmpeg() {
 
 void FFmpeg::pause() {
     if (audio != NULL) {
-
         audio->pause();
     }
 }

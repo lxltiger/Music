@@ -3,6 +3,7 @@ package kimascend.com.player;
 import android.text.TextUtils;
 import android.util.Log;
 
+import kimascend.com.listener.OnErrorListener;
 import kimascend.com.listener.OnLoadListener;
 import kimascend.com.listener.OnPlayListener;
 import kimascend.com.listener.OnPreparedListener;
@@ -13,7 +14,7 @@ public class Player {
     private OnPreparedListener preparedListener;
     private OnLoadListener loadListener;
     private OnPlayListener playListener;
-
+    private OnErrorListener onErrorListener;
     static {
         System.loadLibrary("native-lib");
         System.loadLibrary("avcodec-57");
@@ -37,6 +38,10 @@ public class Player {
 
     public void setPlayListener(OnPlayListener playListener) {
         this.playListener = playListener;
+    }
+
+    public void setOnErrorListener(OnErrorListener onErrorListener) {
+        this.onErrorListener = onErrorListener;
     }
 
     public void setSource(String source) {
@@ -103,6 +108,13 @@ public class Player {
         Log.d(TAG, "onPlaying() called with: current = [" + current + "], total = [" + total + "]");
         if (playListener != null) {
             playListener.onTimeInfo(current, total);
+        }
+    }
+
+    public void onError(int code, String msg) {
+        if (onErrorListener != null) {
+            stopAudio();
+            onErrorListener.onError(code, msg);
         }
     }
 

@@ -13,6 +13,8 @@ extern "C"{
  #include <libavformat/avformat.h>
 
 }
+
+bool exiting=false;
 //释放内存顺序  释放队列--释放OpenSl--释放audio--释放FFmepg
 
 //#define LOGI(FORMAT,...) __android_log_print(ANDROID_LOG_INFO,"ywl5320",FORMAT,##__VA_ARGS__);
@@ -143,6 +145,7 @@ Java_kimascend_com_player_Player_prepare(JNIEnv *env, jobject instance, jstring 
     if (javaInvoke == NULL) {
         javaInvoke = new JavaInvoke(javaVM, env, instance);
     }
+    javaInvoke->onLoad(mainThread, true);
 
     if (status == NULL) {
         status = new Status();
@@ -163,35 +166,33 @@ Java_kimascend_com_player_Player_start(JNIEnv *env, jobject instance) {
     if (fFmpeg != NULL) {
         fFmpeg->start();
     }
-
 }
-
 
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_kimascend_com_player_Player_pause(JNIEnv *env, jobject instance) {
-
     if (fFmpeg != NULL) {
         fFmpeg->pause();
     }
-
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_kimascend_com_player_Player_resume(JNIEnv *env, jobject instance) {
-
     if (fFmpeg != NULL) {
         fFmpeg->resume();
     }
-
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_kimascend_com_player_Player_stop(JNIEnv *env, jobject instance) {
 
+    if (exiting) {
+        return;
+    }
+    exiting=true;
     if (fFmpeg != NULL) {
         fFmpeg->release();
         delete (fFmpeg);
@@ -206,5 +207,5 @@ Java_kimascend_com_player_Player_stop(JNIEnv *env, jobject instance) {
         delete (status);
         status=NULL;
     }
-
+    exiting=false;
 }
