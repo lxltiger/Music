@@ -182,18 +182,21 @@ void Audio::initOpenSLES() {
     };
     SLDataSource slDataSource = {&android_queue, &pcm};
     SLDataSink dataSink = {&outputMix, NULL};
-    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_EFFECTSEND, SL_IID_VOLUME};
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
+    const SLboolean req[2] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayObject, &slDataSource,
-                                                &dataSink, 3, ids, req);
+                                                &dataSink, 2, ids, req);
     (*pcmPlayObject)->Realize(pcmPlayObject, SL_BOOLEAN_FALSE);
     (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_PLAY, &pcmPlayerPlay);
 
     (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_BUFFERQUEUE, &pcmBufferQueue);
 
+    (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_VOLUME, &pcmVolumePlay);
+
+    setVolume(volume);
+
     (*pcmBufferQueue)->RegisterCallback(pcmBufferQueue, pcmBufferCallBack, this);
-//    (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_VOLUME, &pcmPlayVolume);
 
     (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PLAYING);
 
@@ -250,6 +253,7 @@ int Audio::getCurrentSampleRate(int sample_rate) {
 }
 
 void Audio::pause() {
+
     if (pcmPlayerPlay != NULL) {
         (*pcmPlayerPlay)->SetPlayState(pcmPlayerPlay, SL_PLAYSTATE_PAUSED);
     }
@@ -293,23 +297,46 @@ void Audio::release() {
 
     if (buffer != NULL) {
         free(buffer);
-        buffer=NULL;
+        buffer = NULL;
     }
 
     if (avCodecContext != NULL) {
         avcodec_close(avCodecContext);
         avcodec_free_context(&avCodecContext);
-        avCodecContext=NULL;
+        avCodecContext = NULL;
     }
 
     if (status != NULL) {
-        status=NULL;
+        status = NULL;
     }
     if (javaInvoke != NULL) {
-        javaInvoke=NULL;
+        javaInvoke = NULL;
     }
 
 
+}
 
-
+void Audio::setVolume(int percent) {
+    volume=percent;
+    if (pcmVolumePlay != NULL) {
+        if (percent > 30) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -20);
+        } else if (percent > 25) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -22);
+        } else if (percent > 20) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -25);
+        } else if (percent > 15) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -28);
+        } else if (percent > 10) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -30);
+        } else if (percent > 5) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -34);
+        } else if (percent > 3) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -37);
+        } else if (percent > 0) {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -40);
+        } else {
+            (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -100);
+        }
+    }
 }

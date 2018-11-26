@@ -228,3 +228,25 @@ Java_kimascend_com_player_Player_seek(JNIEnv *env, jobject instance, jint second
     }
 
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_kimascend_com_player_Player_getDuration(JNIEnv *env, jobject instance) {
+
+    if (fFmpeg != NULL) {
+        return fFmpeg->duration;
+    }
+
+    return 0;
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_set_1Volume(JNIEnv *env, jobject instance, jint volume) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->setVolume(volume);
+    }
+
+}

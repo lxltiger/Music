@@ -43,6 +43,9 @@ public:
     void release();
 
     void seek(int64_t second);
+
+    void setVolume(int volume);
+
 };
 
 

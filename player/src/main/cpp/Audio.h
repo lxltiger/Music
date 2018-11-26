@@ -40,6 +40,8 @@ public:
     double current_frame_time;
     double last_time;
 
+    int volume=70;
+
     SLObjectItf engineObject=NULL;
     SLEngineItf engineEngine=NULL;
 
@@ -50,6 +52,7 @@ public:
 
     SLObjectItf pcmPlayObject=NULL;
     SLPlayItf pcmPlayerPlay=NULL;
+    SLVolumeItf  pcmVolumePlay=NULL;
 
     SLAndroidSimpleBufferQueueItf pcmBufferQueue=NULL;
 
@@ -73,6 +76,8 @@ public:
     void stop();
 
     void release();
+
+    void setVolume(int vol);
 
 };
 

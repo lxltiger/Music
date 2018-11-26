@@ -17,6 +17,7 @@ public class Player {
     private OnPlayListener playListener;
     private OnErrorListener onErrorListener;
     private OnCompleteListener onCompleteListener;
+    private int volume=100;
     static {
         System.loadLibrary("native-lib");
         System.loadLibrary("avcodec-57");
@@ -95,6 +96,14 @@ public class Player {
         }.start();
     }
 
+    public void setVolume(int volume) {
+        this.volume=volume;
+        set_Volume(volume);
+    }
+
+    public int getVolume() {
+        return volume;
+    }
 
     //----------C++调用
     public void onPrepared() {
@@ -140,6 +149,9 @@ public class Player {
     public native void resume();
 
     private native void stop();
+    private native void set_Volume(int volume);
     public native void seek(int seconds);
+
+    public native int getDuration();
 
 }

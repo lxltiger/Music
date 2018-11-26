@@ -14,6 +14,7 @@ import android.text.format.DateFormat;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -39,7 +40,10 @@ public class MainActivity extends AppCompatActivity {
             "android.permission.READ_EXTERNAL_STORAGE",
             "android.permission.WRITE_EXTERNAL_STORAGE"};
     private TextView textView;
-
+    private SeekBar seekBar;
+    private SeekBar seekBarVolume;
+    private boolean isSeeking=false;
+    private int position;
 
     public void verifyStoragePermissions(Activity activity) {
 
@@ -62,8 +66,11 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
-                    String timeInfo = String.format("%s/%s", dateFormat.format(msg.arg1 * 1000), dateFormat.format(msg.arg2 * 1000));
-                    textView.setText(timeInfo);
+                    if (!isSeeking) {
+                        String timeInfo = String.format("%s/%s", dateFormat.format(msg.arg1 * 1000), dateFormat.format(msg.arg2 * 1000));
+                        textView.setText(timeInfo);
+                        seekBar.setProgress(msg.arg1 * 100 / msg.arg2);
+                    }
                     break;
             }
         }
@@ -72,11 +79,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        verifyStoragePermissions(this);
         //去除8小时时差
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         textView = findViewById(R.id.play_time_info);
-        verifyStoragePermissions(this);
+        seekBar = findViewById(R.id.seekBar);
+        seekBarVolume = findViewById(R.id.seekBar_volume);
+        seekBarVolume.setProgress(70);
+        seekBar.setOnSeekBarChangeListener(changeListener);
+        seekBarVolume.setOnSeekBarChangeListener(volumeChangeListener);
         player = new Player();
         player.setPreparedListener(new OnPreparedListener() {
             @Override
@@ -124,6 +136,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private SeekBar.OnSeekBarChangeListener changeListener=new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (player.getDuration() > 0 && isSeeking) {
+                position = player.getDuration() * progress / 100;
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            isSeeking=true;
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            player.seek(position);
+            isSeeking=false;
+        }
+    };
+
+    private SeekBar.OnSeekBarChangeListener volumeChangeListener=new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            player.setVolume(progress);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    };
+
 
     public void start(View view) {
 //        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
@@ -146,10 +195,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void stop(View view) {
+//        String timeInfo = String.format("%s/%s", dateFormat.format(0), dateFormat.format(0));
+//        textView.setText(timeInfo);
+//        seekBar.setProgress(0);
         player.stopAudio();
     }
 
-    public void seek(View view) {
-        player.seek(210);
     }
-}
