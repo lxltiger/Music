@@ -5,6 +5,9 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 include_directories(src/main/cpp/include)
+#实现变速变调的第三方库
+include_directories(src/main/cpp/soundtouch/include)
+include_directories(src/main/cpp/soundtouch/SoundTouch)
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -23,6 +26,19 @@ add_library( # Sets the name of the library.
         src/main/cpp/Audio.cpp
         src/main/cpp/PacketQueue.cpp
         src/main/cpp/Status.cpp
+
+        src/main/cpp/soundtouch/SoundTouch/AAFilter.cpp
+        src/main/cpp/soundtouch/SoundTouch/FIFOSampleBuffer.cpp
+        src/main/cpp/soundtouch/SoundTouch/FIRFilter.cpp
+        src/main/cpp/soundtouch/SoundTouch/cpu_detect_x86.cpp
+        src/main/cpp/soundtouch/SoundTouch/sse_optimized.cpp
+        src/main/cpp/soundtouch/SoundTouch/RateTransposer.cpp
+        src/main/cpp/soundtouch/SoundTouch/SoundTouch.cpp
+        src/main/cpp/soundtouch/SoundTouch/InterpolateCubic.cpp
+        src/main/cpp/soundtouch/SoundTouch/InterpolateLinear.cpp
+        src/main/cpp/soundtouch/SoundTouch/InterpolateShannon.cpp
+        src/main/cpp/soundtouch/SoundTouch/TDStretch.cpp
+        src/main/cpp/soundtouch/SoundTouch/PeakFinder.cpp
         )
 add_library( avcodec-57 SHARED IMPORTED)
 set_target_properties( avcodec-57

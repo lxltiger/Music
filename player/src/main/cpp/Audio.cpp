@@ -10,6 +10,14 @@ Audio::Audio(Status *status, int sample_rate, JavaInvoke *javaInvoke) {
     this->javaInvoke = javaInvoke;
     queue = new PacketQueue(status);
     buffer = (uint8_t *) (av_malloc(sample_rate * 2 * 2));
+
+    sampleBuffer = static_cast<SAMPLETYPE *>(malloc(sample_rate * 2 * 2));
+    soundTouch = new SoundTouch();
+    soundTouch->setSampleRate(sample_rate);
+    soundTouch->setChannels(2);
+    soundTouch->setPitch(pitch);
+    soundTouch->setTempo(speed);
+
 }
 
 Audio::~Audio() {
@@ -28,8 +36,10 @@ void Audio::play() {
 
 //FILE *outFile = fopen("/storage/emulated/0/Music/Akon.pcm", "w");
 
-int Audio::reSampleAudio() {
+int Audio::reSampleAudio(void **pcmbuf) {
+    data_size=0;
     while (status != NULL && !status->exit) {
+        if (status->seek) continue;
 
         if (queue->size() == 0) {
             if (!status->load) {
@@ -92,7 +102,7 @@ int Audio::reSampleAudio() {
                 continue;
             }
 
-            int nb = swr_convert(swrContext,
+             nb = swr_convert(swrContext,
                                  &buffer,
                                  avFrame->nb_samples,
                                  (const uint8_t **) (avFrame->data),
@@ -105,7 +115,7 @@ int Audio::reSampleAudio() {
                 current_frame_time = clock;
             }
             clock = current_frame_time;
-
+            *pcmbuf=buffer;
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -130,11 +140,45 @@ int Audio::reSampleAudio() {
     return data_size;
 }
 
+int Audio::getSoundTouchData() {
+    while (status != NULL && !status->exit) {
+        out_buffer = NULL;
+        if (finished) {
+            finished=false;
+            data_size = reSampleAudio(reinterpret_cast<void **>(&out_buffer));
+            if (data_size > 0) {
+                for (int i = 0; i < data_size / 2 + 1; ++i) {
+                    sampleBuffer[i] = out_buffer[i * 2] | (out_buffer[i * 2 + 1] << 8);
+                }
+                soundTouch->putSamples(sampleBuffer, nb);
+                num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
+            }else{
+                soundTouch->flush();
+            }
+        }
+        if (num == 0) {
+            finished=true;
+            continue;
+        }else{
+            if (out_buffer == NULL) {
+                num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
+                if (num == 0) {
+                    finished=true;
+                    continue;
+                }
+            }
+            return num;
+        }
+    }
+    return 0;
+}
+
+
 
 void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
     Audio *audio = (Audio *) context;
     if (audio != NULL) {
-        int size = audio->reSampleAudio();
+        int size = audio->getSoundTouchData();
         if (size > 0) {
             audio->clock += size / ((double) (audio->sample_rate) * 2 * 2);
             if (audio->clock - audio->last_time > 0.5) {
@@ -142,7 +186,7 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 audio->javaInvoke->onPlaying(childThread, (int) (audio->clock), audio->duration);
             }
             (*audio->pcmBufferQueue)->Enqueue(audio->pcmBufferQueue,/* (char *)*/
-                                              audio->buffer, size);
+                                              audio->sampleBuffer, size*2*2);
         }
     }
 
@@ -364,3 +408,18 @@ void Audio::setMute(int mute) {
             break;
     }
 }
+
+void Audio::setPitch(float pitch) {
+    this->pitch=pitch;
+    if (soundTouch != NULL) {
+        soundTouch->setPitch(pitch);
+    }
+}
+
+void Audio::setSpeed(float speed) {
+    this->speed=speed;
+    if (soundTouch != NULL) {
+        soundTouch->setTempo(speed);
+    }
+}
+

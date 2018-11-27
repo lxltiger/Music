@@ -156,4 +156,7 @@ public class Player {
 
     public native int getDuration();
 
+    public native void setSpeed(float speed);
+    public native void setPitch(float pitch);
+
 }

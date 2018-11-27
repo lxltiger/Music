@@ -215,4 +215,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void normal(View view) {
+        player.setSpeed(1.0f);
+        player.setPitch(1.0f);
+
+    }
+
+    public void speed_pitch_up(View view) {
+        player.setSpeed(1.5f);
+        player.setPitch(1.5f);
+    }
+
+    public void pitch_up(View view) {
+        player.setSpeed(1.0f);
+        player.setPitch(1.5f);
+    }
+
+    public void speed_up(View view) {
+        player.setSpeed(1.5f);
+        player.setPitch(1.0f);
+    }
 }

@@ -267,4 +267,16 @@ void FFmpeg::setMute(int mute) {
     }
 }
 
+void FFmpeg::setPitch(float pitch) {
+    if (audio != NULL) {
+        audio->setPitch(pitch);
+    }
+}
+
+void FFmpeg::setSpeed(float speed) {
+    if (audio != NULL) {
+        audio->setSpeed(speed);
+    }
+}
+
 

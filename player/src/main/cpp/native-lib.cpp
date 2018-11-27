@@ -260,3 +260,24 @@ Java_kimascend_com_player_Player_setMute(JNIEnv *env, jobject instance, jint mut
     }
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_setSpeed(JNIEnv *env, jobject instance, jfloat speed) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->setSpeed(speed);
+
+    }
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_setPitch(JNIEnv *env, jobject instance, jfloat pitch) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->setPitch(pitch);
+
+    }
+}

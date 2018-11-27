@@ -8,6 +8,9 @@
 #include "Status.h"
 #include "PacketQueue.h"
 #include "JavaInvoke.h"
+#include "SoundTouch.h"
+
+using namespace soundtouch;
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -29,43 +32,53 @@ public:
     pthread_t thread_play;
     AVPacket *avPacket;
     AVFrame *avFrame;
-    int ret=0;
-    uint8_t *buffer=NULL;
-    int data_size=0;
-    int sample_rate=0;
+    int ret = 0;
+    uint8_t *buffer = NULL;
+    int data_size = 0;
+    int sample_rate = 0;
 
-    int duration=0;
+    int duration = 0;
     AVRational time_base;
     double clock;
     double current_frame_time;
     double last_time;
 
-    int volume=70;
-    int mute=2;
-
-    SLObjectItf engineObject=NULL;
-    SLEngineItf engineEngine=NULL;
+    int volume = 70;
+    int mute = 2;
 
 
-    SLObjectItf outputMixObject=NULL;
-    SLEnvironmentalReverbItf  outputEnviromentReverb;
+    SLObjectItf engineObject = NULL;
+    SLEngineItf engineEngine = NULL;
+
+
+    SLObjectItf outputMixObject = NULL;
+    SLEnvironmentalReverbItf outputEnviromentReverb;
     SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
 
-    SLObjectItf pcmPlayObject=NULL;
-    SLPlayItf pcmPlayerPlay=NULL;
-    SLVolumeItf  pcmVolumePlay=NULL;
-    SLMuteSoloItf  pcmMutePlay=NULL;
+    SLObjectItf pcmPlayObject = NULL;
+    SLPlayItf pcmPlayerPlay = NULL;
+    SLVolumeItf pcmVolumePlay = NULL;
+    SLMuteSoloItf pcmMutePlay = NULL;
 
-    SLAndroidSimpleBufferQueueItf pcmBufferQueue=NULL;
+    SLAndroidSimpleBufferQueueItf pcmBufferQueue = NULL;
 
+    SoundTouch *soundTouch = NULL;
+    SAMPLETYPE *sampleBuffer = NULL;
+    bool finished = true;
+    uint8_t *out_buffer = NULL;
+    int nb = 0;
+    int num = 0;
+    float pitch = 1.0f;
+    float speed = 1.0f;
 
 public:
-    Audio(Status *status,int sample_rate,JavaInvoke *javaInvoke);
+    Audio(Status *status, int sample_rate, JavaInvoke *javaInvoke);
+
     ~Audio();
 
     void play();
 
-    int reSampleAudio();
+    int reSampleAudio(void **pcmbuf);
 
     void initOpenSLES();
 
@@ -83,6 +96,11 @@ public:
 
     void setMute(int mute);
 
+    int getSoundTouchData();
+
+    void setPitch(float pitch);
+
+    void setSpeed(float speed);
 };
 
 
