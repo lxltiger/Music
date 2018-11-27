@@ -250,3 +250,13 @@ Java_kimascend_com_player_Player_set_1Volume(JNIEnv *env, jobject instance, jint
     }
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_setMute(JNIEnv *env, jobject instance, jint mute) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->setMute(mute);
+    }
+
+}

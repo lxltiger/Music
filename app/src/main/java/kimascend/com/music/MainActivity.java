@@ -201,4 +201,18 @@ public class MainActivity extends AppCompatActivity {
         player.stopAudio();
     }
 
+    public void right(View view) {
+        player.setMute(0);
     }
+
+    public void center(View view) {
+        player.setMute(2);
+
+    }
+
+    public void left(View view) {
+        player.setMute(1);
+
+    }
+
+}

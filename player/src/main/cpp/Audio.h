@@ -41,6 +41,7 @@ public:
     double last_time;
 
     int volume=70;
+    int mute=2;
 
     SLObjectItf engineObject=NULL;
     SLEngineItf engineEngine=NULL;
@@ -53,6 +54,7 @@ public:
     SLObjectItf pcmPlayObject=NULL;
     SLPlayItf pcmPlayerPlay=NULL;
     SLVolumeItf  pcmVolumePlay=NULL;
+    SLMuteSoloItf  pcmMutePlay=NULL;
 
     SLAndroidSimpleBufferQueueItf pcmBufferQueue=NULL;
 
@@ -78,6 +80,8 @@ public:
     void release();
 
     void setVolume(int vol);
+
+    void setMute(int mute);
 
 };
 

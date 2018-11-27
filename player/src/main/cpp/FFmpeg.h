@@ -46,6 +46,8 @@ public:
 
     void setVolume(int volume);
 
+    void setMute(int mute);
+
 };
 
 

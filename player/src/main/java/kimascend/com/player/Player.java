@@ -152,6 +152,8 @@ public class Player {
     private native void set_Volume(int volume);
     public native void seek(int seconds);
 
+    public native void setMute(int mute);
+
     public native int getDuration();
 
 }

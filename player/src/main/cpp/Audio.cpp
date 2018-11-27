@@ -182,17 +182,19 @@ void Audio::initOpenSLES() {
     };
     SLDataSource slDataSource = {&android_queue, &pcm};
     SLDataSink dataSink = {&outputMix, NULL};
-    const SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
-    const SLboolean req[2] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO};
+    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayObject, &slDataSource,
-                                                &dataSink, 2, ids, req);
+                                                &dataSink, 3, ids, req);
     (*pcmPlayObject)->Realize(pcmPlayObject, SL_BOOLEAN_FALSE);
     (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_PLAY, &pcmPlayerPlay);
 
     (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_BUFFERQUEUE, &pcmBufferQueue);
 
     (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_VOLUME, &pcmVolumePlay);
+
+    (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_MUTESOLO, &pcmMutePlay);
 
     setVolume(volume);
 
@@ -317,7 +319,7 @@ void Audio::release() {
 }
 
 void Audio::setVolume(int percent) {
-    volume=percent;
+    volume = percent;
     if (pcmVolumePlay != NULL) {
         if (percent > 30) {
             (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -20);
@@ -338,5 +340,27 @@ void Audio::setVolume(int percent) {
         } else {
             (*pcmVolumePlay)->SetVolumeLevel(pcmVolumePlay, (100 - percent) * -100);
         }
+    }
+}
+
+void Audio::setMute(int mute) {
+    this->mute = mute;
+    switch (mute) {
+        //right
+        case 0:
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, false);
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, true);
+            break;
+//left
+        case 1:
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, true);
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, false);
+            break;
+        case 2:
+        default:
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 1, false);
+            (*pcmMutePlay)->SetChannelMute(pcmMutePlay, 0, false);
+
+            break;
     }
 }
