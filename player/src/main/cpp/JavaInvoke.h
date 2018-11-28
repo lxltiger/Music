@@ -25,6 +25,7 @@ public:
     jmethodID  methodPlayingId;
     jmethodID  methodOnErrorId;
     jmethodID  methodOnCompleteId;
+    jmethodID  methodPCM2AACId;
 
 public:
     JavaInvoke( JavaVM *jvm,JNIEnv *env,jobject  jobj);
@@ -40,6 +41,8 @@ public:
     void onPlaying(int threadType, int current,int total);
 
     void onError(int threadType, int code, const char *msg);
+
+    void pcm2aac(int threadType,int size,void *buffer);
 
 };
 

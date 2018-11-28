@@ -3,15 +3,12 @@ package kimascend.com.music;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.icu.text.TimeZoneFormat;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.DateFormat;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
@@ -42,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private SeekBar seekBar;
     private SeekBar seekBarVolume;
-    private boolean isSeeking=false;
+    private boolean isSeeking = false;
     private int position;
 
     public void verifyStoragePermissions(Activity activity) {
@@ -61,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -75,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTimeInfo(int current, int total) {
-                Message.obtain(handler,0,current,total).sendToTarget();
+                Message.obtain(handler, 0, current, total).sendToTarget();
             }
         });
 
@@ -136,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private SeekBar.OnSeekBarChangeListener changeListener=new SeekBar.OnSeekBarChangeListener() {
+    private SeekBar.OnSeekBarChangeListener changeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (player.getDuration() > 0 && isSeeking) {
@@ -146,17 +144,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            isSeeking=true;
+            isSeeking = true;
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             player.seek(position);
-            isSeeking=false;
+            isSeeking = false;
         }
     };
 
-    private SeekBar.OnSeekBarChangeListener volumeChangeListener=new SeekBar.OnSeekBarChangeListener() {
+    private SeekBar.OnSeekBarChangeListener volumeChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             player.setVolume(progress);
@@ -175,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void start(View view) {
-//        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
 //        Log.d(TAG, musicDirectory.getAbsolutePath());
-//        String url = musicDirectory + "/Akon.mp3";
-//        player.setSource(url);
-        player.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
+        String url = musicDirectory + "/Akon.mp3";
+        player.setSource(url);
+//        player.setSource("http://mpge.5nd.com/2015/2015-11-26/69708/1.mp3");
         player.prepareAudio();
 
     }
@@ -234,5 +232,25 @@ public class MainActivity extends AppCompatActivity {
     public void speed_up(View view) {
         player.setSpeed(1.5f);
         player.setPitch(1.0f);
+    }
+
+    public void stop_record(View view) {
+        player.stopRecord();
+    }
+
+    public void resume_record(View view) {
+        player.resumeRecord();
+    }
+
+    public void pause_record(View view) {
+        player.pauseRecord();
+    }
+
+//    不成功
+    public void start_record(View view) {
+        File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+        File file = new File(parent, "temp.aac");
+        player.startRecord(file);
+
     }
 }

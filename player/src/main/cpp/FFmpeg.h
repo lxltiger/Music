@@ -15,6 +15,7 @@ extern "C"{
 #include "Status.h"
 #include <pthread.h>
 
+
 class FFmpeg {
 public:
     JavaInvoke *javaInvoke=NULL;
@@ -51,6 +52,9 @@ public:
     void setPitch(float pitch);
 
     void setSpeed(float speed);
+
+    void record(bool recording);
+
 
 };
 

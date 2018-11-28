@@ -13,6 +13,7 @@
 using namespace soundtouch;
 
 extern "C" {
+#include <libavutil/time.h>
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
 #include <SLES/OpenSLES.h>
@@ -71,6 +72,8 @@ public:
     float pitch = 1.0f;
     float speed = 1.0f;
 
+    bool  isRecording=false;
+
 public:
     Audio(Status *status, int sample_rate, JavaInvoke *javaInvoke);
 
@@ -101,6 +104,8 @@ public:
     void setPitch(float pitch);
 
     void setSpeed(float speed);
+
+    void record(bool recording);
 };
 
 

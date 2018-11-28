@@ -65,6 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="100" />
+
     <TextView
         android:id="@+id/volume"
         android:layout_width="match_parent"
@@ -75,14 +76,15 @@
         android:id="@+id/seekBar_volume"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:progress="100"
-        android:max="100" />
+        android:max="100"
+        android:progress="100" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/left"
             android:layout_width="wrap_content"
@@ -112,40 +114,73 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/three" />
-    </LinearLayout> <LinearLayout
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/speed_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="speed_up"
-            android:text="变速不变调"
-            />
+            android:text="变速不变调" />
 
         <Button
             android:id="@+id/pitch_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="pitch_up"
-            android:text="变调不变速"
-             />
+            android:text="变调不变速" />
 
         <Button
             android:id="@+id/speed_pitch_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="speed_pitch_up"
-            android:text="变速变调"
-           />
+            android:text="变速变调" />
 
-    <Button
+        <Button
             android:id="@+id/normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="normal"
-            android:text="正常"
-           />
+            android:text="正常" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/start_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="start_record"
+            android:text="开始录制" />
+
+        <Button
+            android:id="@+id/pause_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="pause_record"
+            android:text="暂停录制" />
+
+        <Button
+            android:id="@+id/resume_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="resume_record"
+            android:text="继续录制" />
+
+        <Button
+            android:id="@+id/stop_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="stop_record"
+            android:text="停止录制" />
     </LinearLayout>
 </LinearLayout>

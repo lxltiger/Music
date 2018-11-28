@@ -31,6 +31,7 @@ JavaInvoke::JavaInvoke(JavaVM *jvm, JNIEnv *env, jobject jobj) {
     this->methodLoadId=env->GetMethodID(cls, "onLoad", "(Z)V");
     this->methodPlayingId = env->GetMethodID(cls, "onPlaying", "(II)V");
     this->methodOnErrorId = env->GetMethodID(cls, "onError", "(ILjava/lang/String;)V");
+    this->methodPCM2AACId = env->GetMethodID(cls, "encodePcm2AAC", "(I[B)V");
 }
 
 JavaInvoke::~JavaInvoke() {
@@ -135,6 +136,31 @@ void JavaInvoke::onComplete(int threadType) {
 
     }
 
+}
+
+void JavaInvoke::pcm2aac(int threadType, int size, void *buffer) {
+    if (mainThread == threadType) {
+        jbyteArray array = env->NewByteArray(size);
+        env->SetByteArrayRegion(array, 0, size, static_cast<const jbyte *>(buffer));
+        env->CallVoidMethod(jobj, methodPCM2AACId, size, array);
+        env->DeleteLocalRef(array);
+
+    } else if (childThread == threadType) {
+
+        JNIEnv *jniEnv;
+        if(jvm->AttachCurrentThread(&jniEnv,0)!=JNI_OK){
+            LOGE("get child thread wrong")
+            return ;
+        }
+
+        jbyteArray array = jniEnv->NewByteArray(size);
+        jniEnv->SetByteArrayRegion(array, 0, size, static_cast<const jbyte *>(buffer));
+        jniEnv->CallVoidMethod(jobj, methodPCM2AACId, size, array);
+        jniEnv->DeleteLocalRef(array);
+
+        jvm->DetachCurrentThread();
+
+    }
 }
 
 

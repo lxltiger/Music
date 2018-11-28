@@ -281,3 +281,29 @@ Java_kimascend_com_player_Player_setPitch(JNIEnv *env, jobject instance, jfloat 
 
     }
 }
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_kimascend_com_player_Player_getSampleRate(JNIEnv *env, jobject instance) {
+
+    if (fFmpeg != NULL) {
+        Audio *audio=fFmpeg->audio;
+        if (audio != NULL) {
+            return audio->avCodecContext->sample_rate;
+        }
+    }
+    return 0;
+
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_kimascend_com_player_Player_startRecord__Z(JNIEnv *env, jobject instance,
+                                                jboolean isRecording) {
+
+    if (fFmpeg != NULL) {
+        fFmpeg->record(isRecording);
+    }
+
+}

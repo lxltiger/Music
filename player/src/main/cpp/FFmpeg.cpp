@@ -129,9 +129,11 @@ void FFmpeg::start() {
 //    int count = 0;
     while (status != NULL && !status->exit) {
         if (status->seek) {
+            av_usleep(1000 * 100);
             continue;
         }
-        if (audio->queue->size() > 40) {
+        if (audio->queue->size() > 100) {
+            av_usleep(1000 * 100);
             continue;
         }
         AVPacket *pPacket = av_packet_alloc();
@@ -153,6 +155,7 @@ void FFmpeg::start() {
             av_free(pPacket);
             while (status != NULL && !status->exit) {
                 if (audio->queue->size() > 0) {
+                    av_usleep(1000 * 100);
                     continue;
                 } else {
                     status->exit = true;
@@ -276,6 +279,12 @@ void FFmpeg::setPitch(float pitch) {
 void FFmpeg::setSpeed(float speed) {
     if (audio != NULL) {
         audio->setSpeed(speed);
+    }
+}
+
+void FFmpeg::record(bool recording) {
+    if (audio != NULL) {
+        audio->record(recording);
     }
 }
 

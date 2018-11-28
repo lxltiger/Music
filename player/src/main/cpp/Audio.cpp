@@ -39,13 +39,18 @@ void Audio::play() {
 int Audio::reSampleAudio(void **pcmbuf) {
     data_size=0;
     while (status != NULL && !status->exit) {
-        if (status->seek) continue;
+        if (status->seek) {
+            av_usleep(1000 * 100);
+            continue;
+        }
 
         if (queue->size() == 0) {
             if (!status->load) {
                 status->load = true;
                 javaInvoke->onLoad(childThread, true);
             }
+            av_usleep(1000 * 100);
+
             continue;
         } else {
             if (status->load) {
@@ -185,6 +190,9 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 audio->last_time = audio->clock;
                 audio->javaInvoke->onPlaying(childThread, (int) (audio->clock), audio->duration);
             }
+            if (audio->isRecording) {
+                audio->javaInvoke->pcm2aac(childThread, size*2*2, audio->sampleBuffer);
+            }
             (*audio->pcmBufferQueue)->Enqueue(audio->pcmBufferQueue,/* (char *)*/
                                               audio->sampleBuffer, size*2*2);
         }
@@ -226,11 +234,11 @@ void Audio::initOpenSLES() {
     };
     SLDataSource slDataSource = {&android_queue, &pcm};
     SLDataSink dataSink = {&outputMix, NULL};
-    const SLInterfaceID ids[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO};
-    const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
+    const SLInterfaceID ids[4] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO,SL_IID_PLAYBACKRATE};
+    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,SL_BOOLEAN_TRUE};
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayObject, &slDataSource,
-                                                &dataSink, 3, ids, req);
+                                                &dataSink, 4, ids, req);
     (*pcmPlayObject)->Realize(pcmPlayObject, SL_BOOLEAN_FALSE);
     (*pcmPlayObject)->GetInterface(pcmPlayObject, SL_IID_PLAY, &pcmPlayerPlay);
 
@@ -327,6 +335,8 @@ void Audio::release() {
         pcmPlayObject = NULL;
         pcmPlayerPlay = NULL;
         pcmBufferQueue = NULL;
+        pcmMutePlay=NULL;
+        pcmVolumePlay=NULL;
     }
 
     if (outputMixObject != NULL) {
@@ -344,6 +354,20 @@ void Audio::release() {
     if (buffer != NULL) {
         free(buffer);
         buffer = NULL;
+    }
+
+    if (out_buffer != NULL) {
+        out_buffer = NULL;
+    }
+
+    if (soundTouch != NULL) {
+        delete (soundTouch);
+        soundTouch = NULL;
+    }
+
+    if (sampleBuffer != NULL) {
+        free(sampleBuffer);
+        sampleBuffer = NULL;
     }
 
     if (avCodecContext != NULL) {
@@ -421,5 +445,10 @@ void Audio::setSpeed(float speed) {
     if (soundTouch != NULL) {
         soundTouch->setTempo(speed);
     }
+}
+
+void Audio::record(bool recording) {
+    this->isRecording=recording;
+
 }
 
