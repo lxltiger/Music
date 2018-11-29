@@ -28,7 +28,7 @@ public class AudioCapturer {
 
 
 
-    interface AudioFrameListener {
+    public interface AudioFrameListener {
         void onFrameAvailable(byte[] buffer);
     }
 
@@ -39,7 +39,8 @@ public class AudioCapturer {
     public boolean startCapture() {
         return startCapture(AUDIO_SOURCE, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
     }
-    private boolean startCapture(int audioSource, int sampleRateInHz, int channelConfig, int audioFormat) {
+
+    public boolean startCapture(int audioSource, int sampleRateInHz, int channelConfig, int audioFormat) {
 
         if (isCapturing) {
             loge("is capturing ");
@@ -60,12 +61,11 @@ public class AudioCapturer {
         }
 
         audioRecord = new AudioRecord(audioSource, sampleRateInHz, channelConfig, audioFormat, minBufferSize);
-        if (AudioRecord.STATE_UNINITIALIZED == audioRecord.getRecordingState()) {
+        if (AudioRecord.STATE_UNINITIALIZED == audioRecord.getState()) {
             loge("fail to initialize");
             isCapturing = false;
             return false;
         }
-
         audioRecord.startRecording();
 
         exit_capture=false;

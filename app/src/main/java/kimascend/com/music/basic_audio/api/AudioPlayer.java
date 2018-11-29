@@ -76,11 +76,6 @@ public class AudioPlayer {
             return false;
         }
 
-        if (size < minBufferSize) {
-            loge("byte is not enough");
-            return false;
-        }
-
         if (audioTrack.write(buffer, offset, size) != size) {
             loge("could not write all buffer ");
             return false;
