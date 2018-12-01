@@ -5,7 +5,7 @@ import android.os.Environment;
 import java.io.IOException;
 
 import kimascend.com.music.basic_audio.api.AudioPlayer;
-import kimascend.com.music.basic_audio.api.WaveFileReader;
+import kimascend.com.music.basic_audio.wav.WaveFileReader;
 
 public class AudioPlayerTester implements Tester {
 

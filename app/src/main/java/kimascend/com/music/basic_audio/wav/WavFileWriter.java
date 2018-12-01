@@ -1,4 +1,6 @@
-package kimascend.com.music.basic_audio.api;
+package kimascend.com.music.basic_audio.wav;
+
+import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
@@ -7,6 +9,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import kimascend.com.music.utils.ByteUtil;
+
+import static kimascend.com.music.utils.LogUtil.logd;
 
 public class WavFileWriter {
 
@@ -21,7 +25,7 @@ public class WavFileWriter {
         mFilepath = filepath;
         mDataSize = 0;
         mDataOutputStream = new DataOutputStream(new FileOutputStream(filepath));
-        return writeHeader(sampleRateInHz, bitsPerSample, channels);
+        return writeHeader(sampleRateInHz,  channels,bitsPerSample);
     }
 
     public boolean closeFile() throws IOException {
@@ -55,8 +59,8 @@ public class WavFileWriter {
             return false;
         }
 
-        WavFileHeader header = new WavFileHeader(sampleRateInHz, channels, bitsPerSample);
-
+        WavFileHeader header = new WavFileHeader(channels, sampleRateInHz,bitsPerSample);
+        logd( header.toString());
         try {
             mDataOutputStream.writeBytes(header.chunkId);
             mDataOutputStream.write(ByteUtil.int2byte(header.chunkSize), 0, 4);

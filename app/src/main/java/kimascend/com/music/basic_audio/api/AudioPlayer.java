@@ -12,10 +12,9 @@ import static kimascend.com.music.utils.LogUtil.loge;
 public class AudioPlayer {
     private static final int STREAMTYPE = AudioManager.STREAM_MUSIC;
     private static final int SAMPLERATEINHZ = 44100;
-    private static final int CHANNELCONFIG = AudioFormat.CHANNEL_IN_STEREO;
+    private static final int CHANNELCONFIG = AudioFormat.CHANNEL_OUT_MONO;
     private static final int AUDIOFORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final int MODE = AudioTrack.MODE_STREAM;
-    private int minBufferSize;
     private boolean isPlaying = false;
     private AudioTrack audioTrack;
 
@@ -35,7 +34,7 @@ public class AudioPlayer {
         }
         isPlaying = true;
 
-        minBufferSize = AudioTrack.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
+        int minBufferSize = AudioTrack.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
         if (ERROR_BAD_VALUE == minBufferSize) {
             loge("Invalid parameter");
             isPlaying = false;
@@ -78,7 +77,6 @@ public class AudioPlayer {
 
         if (audioTrack.write(buffer, offset, size) != size) {
             loge("could not write all buffer ");
-            return false;
         }
 
         audioTrack.play();

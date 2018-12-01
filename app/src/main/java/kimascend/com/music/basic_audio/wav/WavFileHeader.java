@@ -1,6 +1,7 @@
-package kimascend.com.music.basic_audio.api;
+package kimascend.com.music.basic_audio.wav;
 
 public class WavFileHeader {
+
     public static final int WAV_FILE_HEADER_SIZE = 44;
     public static final int WAV_CHUNKSIZE_EXCLUDE_DATA = 36;
 
@@ -11,8 +12,8 @@ public class WavFileHeader {
     String chunkId = "RIFF";
     int chunkSize=0;
     String format = "WAVE";
-
-    String subChunk1Id = "fmt";
+//    注意空格 一共四个字节
+    String subChunk1Id = "fmt ";
     int subChunk1Size=16;
     short audioFormat=1;
     short numChannels=1;
@@ -33,5 +34,25 @@ public class WavFileHeader {
         this.numChannels = (short) numChannels;
         byteRate = sampleRate * numChannels * bitPerSample / 8;
         blockAlign = (short) (numChannels * bitPerSample / 8);
+    }
+
+
+    @Override
+    public String toString() {
+        return "WavFileHeader{" +
+                "chunkId='" + chunkId + '\'' +
+                ", chunkSize=" + chunkSize +
+                ", format='" + format + '\'' +
+                ", subChunk1Id='" + subChunk1Id + '\'' +
+                ", subChunk1Size=" + subChunk1Size +
+                ", audioFormat=" + audioFormat +
+                ", numChannels=" + numChannels +
+                ", sampleRate=" + sampleRate +
+                ", byteRate=" + byteRate +
+                ", blockAlign=" + blockAlign +
+                ", bitPerSample=" + bitPerSample +
+                ", subChunk2Id='" + subChunk2Id + '\'' +
+                ", subChunk2Size=" + subChunk2Size +
+                '}';
     }
 }

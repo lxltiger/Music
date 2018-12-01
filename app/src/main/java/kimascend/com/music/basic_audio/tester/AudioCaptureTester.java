@@ -7,9 +7,8 @@ import android.os.Environment;
 import java.io.IOException;
 
 import kimascend.com.music.basic_audio.api.AudioCapturer;
-import kimascend.com.music.basic_audio.api.WavFileWriter;
+import kimascend.com.music.basic_audio.wav.WavFileWriter;
 
-import static kimascend.com.music.utils.LogUtil.logd;
 import static kimascend.com.music.utils.LogUtil.loge;
 
 public class AudioCaptureTester implements Tester,AudioCapturer.AudioFrameListener {
@@ -28,15 +27,15 @@ public class AudioCaptureTester implements Tester,AudioCapturer.AudioFrameListen
         audioCapturer=new AudioCapturer();
         wavFileWriter=new WavFileWriter();
         try {
-            wavFileWriter.openFile(path, 44100, 2, 16);
+            wavFileWriter.openFile(path, 44100, 1, 16);
         } catch (IOException e) {
             loge("fail to open file");
             return false;
         }
         audioCapturer.setAudioFrameListener(this);
 
-        return audioCapturer.startCapture(/*MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT*/);
+        return audioCapturer.startCapture(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT);
     }
 
     @Override
