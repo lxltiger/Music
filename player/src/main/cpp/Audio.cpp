@@ -37,7 +37,7 @@ void Audio::play() {
 //FILE *outFile = fopen("/storage/emulated/0/Music/Akon.pcm", "w");
 
 int Audio::reSampleAudio(void **pcmbuf) {
-    data_size=0;
+    data_size = 0;
     while (status != NULL && !status->exit) {
         if (status->seek) {
             av_usleep(1000 * 100);
@@ -107,11 +107,11 @@ int Audio::reSampleAudio(void **pcmbuf) {
                 continue;
             }
 
-             nb = swr_convert(swrContext,
-                                 &buffer,
-                                 avFrame->nb_samples,
-                                 (const uint8_t **) (avFrame->data),
-                                 avFrame->nb_samples);
+            nb = swr_convert(swrContext,
+                             &buffer,
+                             avFrame->nb_samples,
+                             (const uint8_t **) (avFrame->data),
+                             avFrame->nb_samples);
             int out_channel = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
             data_size = nb * out_channel * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
 //            fwrite(buffer, 1, data_size, outFile);
@@ -120,7 +120,7 @@ int Audio::reSampleAudio(void **pcmbuf) {
                 current_frame_time = clock;
             }
             clock = current_frame_time;
-            *pcmbuf=buffer;
+            *pcmbuf = buffer;
             av_packet_free(&avPacket);
             av_free(avPacket);
             avPacket = NULL;
@@ -149,7 +149,7 @@ int Audio::getSoundTouchData() {
     while (status != NULL && !status->exit) {
         out_buffer = NULL;
         if (finished) {
-            finished=false;
+            finished = false;
             data_size = reSampleAudio(reinterpret_cast<void **>(&out_buffer));
             if (data_size > 0) {
                 for (int i = 0; i < data_size / 2 + 1; ++i) {
@@ -157,18 +157,18 @@ int Audio::getSoundTouchData() {
                 }
                 soundTouch->putSamples(sampleBuffer, nb);
                 num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
-            }else{
+            } else {
                 soundTouch->flush();
             }
         }
         if (num == 0) {
-            finished=true;
+            finished = true;
             continue;
-        }else{
+        } else {
             if (out_buffer == NULL) {
                 num = soundTouch->receiveSamples(sampleBuffer, data_size / 4);
                 if (num == 0) {
-                    finished=true;
+                    finished = true;
                     continue;
                 }
             }
@@ -177,7 +177,6 @@ int Audio::getSoundTouchData() {
     }
     return 0;
 }
-
 
 
 void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
@@ -191,21 +190,29 @@ void pcmBufferCallBack(SLAndroidSimpleBufferQueueItf bf, void *context) {
                 audio->javaInvoke->onPlaying(childThread, (int) (audio->clock), audio->duration);
             }
             if (audio->isRecording) {
-                audio->javaInvoke->pcm2aac(childThread, size*2*2, audio->sampleBuffer);
+                audio->javaInvoke->pcm2aac(childThread, size * 2 * 2, audio->sampleBuffer);
             }
             (*audio->pcmBufferQueue)->Enqueue(audio->pcmBufferQueue,/* (char *)*/
-                                              audio->sampleBuffer, size*2*2);
+                                              audio->sampleBuffer, size * 2 * 2);
         }
     }
 
 
 }
 
-
+/*
+ * 在 OpenSL ES 中，一切 API 的访问和控制都是通过 Interface 来完成的
+ * 三种状态：
+ * SL_OBJECT_STATE_UNREALIZED：此状态下没有分配资源，除了检查状态注册回调没有实际用途，调用Realize进入
+ * SL_OBJECT_STATE_REALIZED：此状态下对象可用，它能过度到
+ * SL_OBJECT_STATE_SUSPENDED：此状态依旧拥有资源但和UNREALIZED一样没有实际用途，通过Resume回到REALIZED状态
+ * REALIZED可切换到UNREALIZED或Suspend状态，UNREALIZED状态下接口指针依旧有效， UNREALIZED状态下需要抛弃所有接口指针（除了Object）重新初始化
+ * */
 void Audio::initOpenSLES() {
     SLresult result;
 
     slCreateEngine(&engineObject, 0, 0, 0, 0, 0);
+//    通过Realize为对象分配资源，此前对象是SL_OBJECT_STATE_UNREALIZED 啥都不能干
     (*engineObject)->Realize(engineObject, SL_BOOLEAN_FALSE);
     (*engineObject)->GetInterface(engineObject, SL_IID_ENGINE, &engineEngine);
 
@@ -221,8 +228,19 @@ void Audio::initOpenSLES() {
     }
 
     SLDataLocator_OutputMix outputMix = {SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
+
+    /*
+     * SLDataLocator_Address
+     *SLDataLocator_BufferQueue
+     *SLDataLocator_IODevice
+     *SLDataLocator_MIDIBufferQueue
+     *SLDataLocator_URI
+     *Media Object 对象的输入源/输出源，既可以是 URL，也可以 Device，或者来自于缓冲区队列等等，
+     * 完全是由 Media Object 对象的具体类型和应用场景来配置。
+     * */
     SLDataLocator_AndroidSimpleBufferQueue android_queue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
                                                             2};
+
     SLDataFormat_PCM pcm = {
             SL_DATAFORMAT_PCM,
             2,
@@ -232,10 +250,15 @@ void Audio::initOpenSLES() {
             SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,
             SL_BYTEORDER_LITTLEENDIAN
     };
+//    data source 代表着输入源的信息，即数据从哪儿来、输入的数据参数是怎样的；
     SLDataSource slDataSource = {&android_queue, &pcm};
+//    而 data sink 则代表着输出的信息，即数据输出到哪儿、以什么样的参数来输出。
     SLDataSink dataSink = {&outputMix, NULL};
-    const SLInterfaceID ids[4] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO,SL_IID_PLAYBACKRATE};
-    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,SL_BOOLEAN_TRUE};
+    //通过接口id数组告诉SLES你的请求
+    const SLInterfaceID ids[4] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_MUTESOLO,
+                                  SL_IID_PLAYBACKRATE};
+//    接口是否必须， true表示必须，如果没找到会返回错误SL_RESULT_FEATURE_UNSUPPORTED
+    const SLboolean req[4] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
     result = (*engineEngine)->CreateAudioPlayer(engineEngine, &pcmPlayObject, &slDataSource,
                                                 &dataSink, 4, ids, req);
@@ -335,8 +358,8 @@ void Audio::release() {
         pcmPlayObject = NULL;
         pcmPlayerPlay = NULL;
         pcmBufferQueue = NULL;
-        pcmMutePlay=NULL;
-        pcmVolumePlay=NULL;
+        pcmMutePlay = NULL;
+        pcmVolumePlay = NULL;
     }
 
     if (outputMixObject != NULL) {
@@ -434,21 +457,21 @@ void Audio::setMute(int mute) {
 }
 
 void Audio::setPitch(float pitch) {
-    this->pitch=pitch;
+    this->pitch = pitch;
     if (soundTouch != NULL) {
         soundTouch->setPitch(pitch);
     }
 }
 
 void Audio::setSpeed(float speed) {
-    this->speed=speed;
+    this->speed = speed;
     if (soundTouch != NULL) {
         soundTouch->setTempo(speed);
     }
 }
 
 void Audio::record(bool recording) {
-    this->isRecording=recording;
+    this->isRecording = recording;
 
 }
 

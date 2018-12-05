@@ -40,6 +40,7 @@ public class AudioCaptureTester implements Tester,AudioCapturer.AudioFrameListen
 
     @Override
     public boolean stopTesting() {
+
         audioCapturer.stopCapture();
         try {
             wavFileWriter.closeFile();

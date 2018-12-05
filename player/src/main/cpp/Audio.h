@@ -47,7 +47,12 @@ public:
     int volume = 70;
     int mute = 2;
 
-
+    /*
+     * GLSE中的核心对象，主要功能
+     * （1）管理 Audio Engine 的生命周期
+     * （2）提供管理接口: SLEngineItf，该接口可以用来创建所有其他的 Object 对象
+     * （3）提供设备属性查询接口：SLEngineCapabilitiesItf 和 SLAudioIODeviceCapabilitiesItf，这些接口可以查询设备的一些属性信息
+     */
     SLObjectItf engineObject = NULL;
     SLEngineItf engineEngine = NULL;
 
